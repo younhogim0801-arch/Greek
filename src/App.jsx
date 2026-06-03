@@ -2,8 +2,6 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import AvatarPanel from './components/AvatarPanel'
 import ChatPanel from './components/ChatPanel'
 import AuthModal from './components/AuthModal'
-import LearningPanel from './components/LearningPanel'
-import lpStyles from './components/LearningPanel.module.css'
 import styles from './App.module.css'
 import { newSessionId, saveChat, getUser, clearAuth, verifyToken } from './lib/api'
 import { MicRecorder, isMicRecorderSupported } from './lib/stt'
@@ -30,8 +28,8 @@ const ECHO_RESUME_DELAY_MS = 700
 // ─── Greetings — replace these to match your bot's persona ───
 // Plain text shown in chat. TTS text is the same by default but you can
 // adjust (e.g. expand abbreviations, add pauses) for more natural speech.
-const GREETING_TEXT = '안녕하세요! 옵션 코치 GREEK이에요. 나랑 옵션 투자에 대해서 알아보러 갈래요? 용어든 전략이든 편하게 물어보세요.'
-const GREETING_TTS  = '안녕하세요! 옵션 코치 그릭이에요. 옵션 용어든 전략이든 편하게 물어보세요.'
+const GREETING_TEXT = '안녕하세요. 무엇을 도와드릴까요?'
+const GREETING_TTS  = '안녕하세요. 무엇을 도와드릴까요?'
 
 function normalizeTranscript(text) {
   return (text || '').replace(/\s+/g, ' ').trim()
@@ -62,7 +60,6 @@ export default function App() {
   const [cameraStream, setCameraStream] = useState(null)
   const [user, setUser] = useState(getUser())   // 로그인된 사용자 (없으면 null = 익명)
   const [authOpen, setAuthOpen] = useState(() => !getUser())
-  const [learnOpen, setLearnOpen] = useState(false)   // 옵션 학습 패널 (용어/퀴즈/모의고사)
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
     return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'
@@ -690,16 +687,6 @@ export default function App() {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         onSuccess={(u) => setUser(u)}
-      />
-
-      {/* 옵션 학습 (용어 검색 · 용어 퀴즈 · 모의고사) — 기존 챗봇으로 "더 묻기" 연결 */}
-      <button className={lpStyles.fab} onClick={() => setLearnOpen(true)}>
-        📚 옵션 학습
-      </button>
-      <LearningPanel
-        open={learnOpen}
-        onClose={() => setLearnOpen(false)}
-        onAsk={(q) => { setLearnOpen(false); sendMessage(q) }}
       />
     </div>
   )
